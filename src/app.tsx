@@ -1,16 +1,22 @@
-import React from "react";
+import React from 'react';
+import { Persistence, usePersistence } from './customHooks/Persistence';
 import { createRoot } from 'react-dom/client';
 
-
 function App() {
+  const { ready } = usePersistence();
   return (
     <div>
-      <h1>💖 Hello World!</h1>
-      <p>Welcome to your Electron application.</p>
+      <Persistence>
+        {ready && (
+          <>
+            <h1>💖 Hello World!</h1>
+            <p>Welcome to your Electron application.</p>
+          </>
+        )}
+      </Persistence>
     </div>
   );
 }
-
 
 const root = createRoot(document.getElementById('root'));
 root.render(
