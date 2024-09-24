@@ -21,6 +21,7 @@ export const Persistence: FC<React.PropsWithChildren> = ({ children }) => {
 
   const value = useMemo(() => {
     function setPersistence() {
+      console.log('setting it');
       if (navigator.storage && navigator.storage.persist) {
         navigator.storage.persisted().then((isPersistent) => {
           if (!isPersistent) {
@@ -46,7 +47,12 @@ export const Persistence: FC<React.PropsWithChildren> = ({ children }) => {
     request.onerror = () => {
       console.error("Why didn't you allow my web app to use IndexedDB?!");
     };
+    request.onsuccess = () => {
+      console.log('success');
+      setReady(true);
+    };
     request.onupgradeneeded = () => {
+      console.log('upgrade');
       const db = request.result;
       setDb(db);
 

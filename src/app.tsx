@@ -1,18 +1,15 @@
 import React from 'react';
-import { Persistence, usePersistence } from './customHooks/Persistence';
+import { Persistence } from './customHooks/Persistence';
 import { createRoot } from 'react-dom/client';
+import TestFetchWorld from './testFetchWorld';
 
 function App() {
-  const { ready } = usePersistence();
   return (
     <div>
       <Persistence>
-        {ready && (
-          <>
-            <h1>💖 Hello World!</h1>
-            <p>Welcome to your Electron application.</p>
-          </>
-        )}
+        <h1>💖 Hello World!</h1>
+        <p>Welcome to your Electron application.</p>
+        <TestFetchWorld />
       </Persistence>
     </div>
   );
