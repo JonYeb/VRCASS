@@ -1,16 +1,31 @@
-import React, { createContext, FC, useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  FC,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 type PersistenceContext = {
   ready: boolean;
   db: IDBDatabase;
-  setItem: (item: Record<string, never>) => void;
+  setValue: (
+    item: Record<string, any>,
+    objectStore: string,
+    key?: string
+  ) => void;
+  getValues: (query: string, objectStore: string) => Record<string, any>;
 };
 
 const PersistenceContext = createContext<PersistenceContext>({
   db: undefined,
   ready: false,
-  setItem(item: Record<string, never>): void {
+  setValue(item: Record<string, any>, objectStore: string): void {
     console.log(item);
+  },
+  getValues(query: string, objectStore: string) {
+    return { foo: 'bar' };
   },
 });
 
@@ -37,8 +52,12 @@ export const Persistence: FC<React.PropsWithChildren> = ({ children }) => {
                 );
               }
             });
+          } else {
+            console.log('already set?');
           }
         });
+      } else {
+        console.log('cant get it');
       }
     }
     setPersistence();
@@ -81,15 +100,35 @@ export const Persistence: FC<React.PropsWithChildren> = ({ children }) => {
       setReady(true);
     };
 
-    function setItem(item: Record<string, never>) {
+    function setValue(
+      item: Record<string, any>,
+      objectStore: string,
+      key?: string
+    ) {
       console.log(item);
       if (!isPersistence) {
         console.warn('no persistence');
         return;
       }
+      const objStore = db
+        .transaction([objectStore], 'readwrite')
+        .objectStore(objectStore);
+      objStore.put(item, key);
     }
 
-    return { setItem, db, ready };
+    async function getValues(query: string, objectStore: string) {
+      console.log(query, objectStore);
+      const request = db
+        .transaction(objectStore)
+        .objectStore(objectStore)
+        .get(query);
+
+      request.onsuccess = () => {
+        return request.result;
+      };
+    }
+
+    return { setValue, db, ready, getValues };
   }, []);
 
   return (
