@@ -1,58 +1,40 @@
+import { RecordEntries } from '../../types';
+import Store from 'electron-store';
+
 export class Persistence {
   readonly name: string;
-  private db: IDBDatabase;
-  private isPersistent: boolean;
-  private isDbCreated: boolean;
+  private store: Store;
 
-  constructor(name = 'VRCASS') {
+  constructor(name = 'VRCASS', encryptionKey?: string) {
     this.name = name;
+    this.store = new Store({ name: name, encryptionKey: encryptionKey });
+  }
 
-    if (navigator.storage && navigator.storage.persist) {
-      navigator.storage.persisted().then((isPersistent) => {
-        if (!isPersistent) {
-          navigator.storage.persist().then((persistent) => {
-            this.isPersistent = persistent;
-          });
-        }
+  setValue(item: RecordEntries, objectStore: string, key: string): void {
+    let newItems: Array<RecordEntries> = [];
+    const oldItems = this.getValues(objectStore);
+    if (oldItems && oldItems.length > 0) {
+      const index = oldItems.findIndex((element) => {
+        element.key = key;
       });
+      if (index >= 0) {
+        oldItems[index] = item;
+      } else {
+        oldItems.push(item);
+      }
+      newItems = oldItems;
+    } else {
+      newItems.push(item);
     }
-
-    const request = indexedDB.open(this.name);
-    request.onerror = () => {
-      this.isDbCreated = false;
-    };
-
-    request.onupgradeneeded = () => {
-      console.log('upgrade');
-      this.db = request.result;
-
-      this.db.createObjectStore('auth', {
-        keyPath: 'username',
-      });
-
-      this.db.createObjectStore('avatars', {
-        autoIncrement: true,
-      });
-
-      this.isDbCreated = true;
-    };
+    // to get proper types package.json needs type: module and tsconfig needs module node and moduleResolution nodenext but then the rest wont compile anymore I HATE MODERN JS
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.store.set(objectStore, newItems);
   }
 
-  setValue(item: Record<string, any>, objectStore: string, key?: string) {
-    const objStore = this.db
-      .transaction([objectStore], 'readwrite')
-      .objectStore(objectStore);
-    objStore.put(item, key);
-  }
-
-  getValues(query: string, objectStore: string) {
-    const request = this.db
-      .transaction(objectStore)
-      .objectStore(objectStore)
-      .get(query);
-
-    request.onsuccess = () => {
-      return request.result;
-    };
+  getValues(objectStore: string): Array<RecordEntries> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return this.store.get(objectStore) as Array<RecordEntries>;
   }
 }

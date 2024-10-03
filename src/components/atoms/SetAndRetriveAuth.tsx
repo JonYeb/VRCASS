@@ -1,23 +1,25 @@
-import { usePersistence } from '../../customHooks/Persistence';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 const SetAndRetrieveAuth = () => {
   const usernameInput = useRef<HTMLInputElement>(null);
   const authcookieInput = useRef<HTMLInputElement>(null);
   const twofactorInput = useRef<HTMLInputElement>(null);
   //eslint-disable-next-line
-  let { ready, getValues, setValue } = usePersistence();
-  const getValuesForName = () => {
-    console.log(getValues(usernameInput.current.value, 'auth'));
+  const getValuesForName = async () => {
+    console.log(window.electronAPI.getValues('auth'));
+    window.electronAPI.getValues('auth').then((value) => {
+      console.log(value);
+    });
   };
   const setValuesForName = () => {
-    setValue(
+    window.electronAPI.setValues(
       {
         username: usernameInput.current.value,
         authcookie: authcookieInput.current.value,
         twofactor: twofactorInput.current.value,
       },
-      'auth'
+      'auth',
+      usernameInput.current.value
     );
   };
 
