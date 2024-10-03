@@ -1,3 +1,4 @@
+![audit](https://github.com/JonYeb/VRCASS/actions/workflows/codeql.yml/badge.svg)
 # VRC Avatar Saver and Switcher
 
 ## About
