@@ -1,20 +1,27 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import SetAndRetrieveAuth from './components/atoms/SetAndRetriveAuth';
+import { Link, Routes, Route, HashRouter } from 'react-router-dom';
+import LoginPage from './components/organism/LoginPage';
+import SideMenu from './components/organism/SideMenu';
 
 function App() {
   return (
-    <div>
-      <h1>💖 Hello World!</h1>
-      <p>Welcome to your Electron application.</p>
-      <SetAndRetrieveAuth />
-    </div>
+    <>
+      <Link to={`/`}>Start</Link>
+      <Link to={`login`}>Your Name</Link>
+    </>
   );
 }
 
 const root = createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <HashRouter>
+      <SideMenu />
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+    </HashRouter>
   </React.StrictMode>
 );
